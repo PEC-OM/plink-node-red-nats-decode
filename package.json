@@ -1,0 +1,30 @@
+{
+  "name": "plink-node-red-nats-decode",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PEC-OM/plink-node-red-nats-decode.git"
+  },
+  "node-red": {
+    "nodes": {
+      "plink-nats-decode": "plink-nats-decode.js"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PEC-OM/plink-node-red-nats-decode/issues"
+  },
+  "homepage": "https://github.com/PEC-OM/plink-node-red-nats-decode#readme",
+  "dependencies": {
+    "mqtt": "^4.3.7",
+    "protobufjs": "^7.2.2",
+    "snappy": "^7.2.2"
+  }
+}
