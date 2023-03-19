@@ -1,8 +1,3 @@
-
-const { uncompressSync } = require("snappy");
-var protobuf = require("protobufjs");
-const path = require('path');
-// const { getListIpV4Local } = require("./src/getListIpLocal");
 const { networkInterfaces } = require('os');
 var modbus = require("modbus-stream");
 
@@ -73,7 +68,7 @@ const scanAllIpV4Range = async (IPv4) => {
     // await scanInv("192.168.1.2");
 };
 
-const getListIpV4Local = () => {
+const scanAllNetwork = async () => {
     const listIPWithName = getListIpV4();
     const IpArr = Object.values(listIPWithName);
     var listIP = [];
@@ -82,37 +77,11 @@ const getListIpV4Local = () => {
             listIP.push(ip)
         })
     });
-    return listIP;
+    let resultInvIp = [];
+    for (let i = 0; i < listIP.length; i++) {
+        console.log("listIP",)
+        await scanAllIpV4Range(listIP[i]);
+    }
 }
 
-module.exports = function (RED) {
-    function LowerCaseNode(config) {
-        RED.nodes.createNode(this, config);
-        var node = this;
-        node.on('input', function (msg) {
-            const data = uncompressSync(msg.payload);
-            // msg.payload = data;
-            // node.send(msg);
-            protobuf.load(__dirname + "/schema.proto", (err, root) => {
-                if (err) {
-                    throw err;
-                }
-                // Obtain a message type
-                var MetricSubmission = root.lookupType("MetricSubmission");
-                var MetricSubmissionMsg = MetricSubmission.decode(data);
-                var object = MetricSubmission.toObject(MetricSubmissionMsg, {
-                    enums: String,  // enums as string names
-                    longs: String,  // longs as strings (requires long.js)
-                    bytes: String,  // bytes as base64 encoded strings
-                    defaults: true, // includes default values
-                    arrays: true,   // populates empty arrays (repeated fields) even if defaults=false
-                    objects: true,  // populates empty objects (map fields) even if defaults=false
-                    oneofs: true    // includes virtual oneof fields set to the present field's name
-                });
-                msg.payload = object;
-                node.send(msg);
-            });
-        });
-    }
-    RED.nodes.registerType("Plink Nats Decode", LowerCaseNode);
-}
+scanAllNetwork();

@@ -12,7 +12,8 @@
   },
   "node-red": {
     "nodes": {
-      "plink-nats-decode": "plink-nats-decode.js"
+      "plink-nats-decode": "plink-nats-decode.js",
+      "plink-scan-inverter": "plink-scan-inverter.js"
     }
   },
   "keywords": [],
@@ -23,6 +24,8 @@
   },
   "homepage": "https://github.com/PEC-OM/plink-node-red-nats-decode#readme",
   "dependencies": {
+    "ip": "^1.1.8",
+    "modbus-stream": "^0.46.0",
     "mqtt": "^4.3.7",
     "protobufjs": "^7.2.2",
     "snappy": "^7.2.2"
