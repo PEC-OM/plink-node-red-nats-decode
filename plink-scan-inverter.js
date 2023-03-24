@@ -68,8 +68,14 @@ const scanInv = (ipDevice, model) => {
                                 dataArr = res.response.data
                                 serialNumber = ""
                                 dataArr.map((e) => {
-                                    serialNumber += e.toString()
+                                    if (e[0] != 0 && e[1] != 0) {
+                                        serialNumber += e.toString()
+                                    }
+                                    else if (e[0] != 0 && e[1] == 0) {
+                                        serialNumber += String.fromCharCode(e[0])
+                                    }
                                 })
+                                console.log(serialNumber);
                                 myResolve({
                                     "success": true,
                                     "data": {
@@ -106,9 +112,10 @@ const scanInv = (ipDevice, model) => {
                                         serialNumber += e.toString()
                                     }
                                     else if (e[0] != 0 && e[1] == 0) {
-                                        serialNumber += e[0].toString()
+                                        serialNumber += String.fromCharCode(e[0])
                                     }
                                 })
+                                console.log(serialNumber);
                                 myResolve({
                                     "success": true,
                                     "data": {
@@ -122,11 +129,7 @@ const scanInv = (ipDevice, model) => {
                             connection?.close();
                         })
                         break;
-
                 }
-
-
-
             }
         });
     });
