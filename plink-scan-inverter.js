@@ -52,7 +52,7 @@ const scanInv = (ipDevice, model) => {
                     case "SMA-110":
                         //Close connection
                         console.log("case sma 110")
-                        connection.readHoldingRegisters({ address: 40052, quantity: 16, retry: 100, extra: { unitId: 1 } }, (err, res) => {
+                        connection.readHoldingRegisters({ address: 40052, quantity: 16, retry: 500, tries: 1, extra: { unitId: 1 } }, (err, res) => {
                             if (err) {
                                 myResolve({
                                     "success": false,
@@ -92,7 +92,7 @@ const scanInv = (ipDevice, model) => {
                     case "SMA-100":
                         console.log("case sma 100")
                         //Close connection
-                        connection.readHoldingRegisters({ address: 40052, quantity: 16, retry: 100, extra: { unitId: 126 } }, (err, res) => {
+                        connection.readHoldingRegisters({ address: 40052, quantity: 16, retry: 500, tries: 1, extra: { unitId: 126 } }, (err, res) => {
                             if (err) {
                                 myResolve({
                                     "success": false,
