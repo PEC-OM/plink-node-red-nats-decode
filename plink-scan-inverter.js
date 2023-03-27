@@ -16,7 +16,8 @@ const getListIpV4 = () => {
             // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
             // 'IPv4' is in Node <= 17, from 18 it's a number 4 or 6
             const familyV4Value = ValidateIPaddress(net.address);
-            if (familyV4Value && !net.internal) {
+
+            if (familyV4Value && !net.internal && net.address.includes("192.168.")) {
                 if (!results[name]) {
                     results[name] = [];
                 }
@@ -39,34 +40,96 @@ const scanInv = (ipDevice, model) => {
                     "success": false,
                     "data": {
                         "device_ip": ipDevice,
-                        "serial_number": ""
+                        "serial_number": "",
+                        "err_type": "cannot connect ip"
                     },
                     "error": err
                 });
             }
             else {
-                //Close connection
-                connection.readInputRegisters({ address: 52, quantity: 8, extra: { unitId: 1 } }, (err, res) => {
-                    if (err) {
-                        myResolve({
-                            "success": false,
-                            "data": {
-                                "device_ip": ipDevice,
-                                "serial_number": ""
-                            },
-                            "error": err
-                        });
-                    }
-                    myResolve({
-                        "success": false,
-                        "data": {
-                            "device_ip": ipDevice,
-                            "serial_number": res
-                        },
-                        "error": err
-                    });
-                })
-                connection?.close();
+                console.log("model", model)
+                switch (model) {
+                    case "SMA-110":
+                        //Close connection
+                        console.log("case sma 110")
+                        connection.readHoldingRegisters({ address: 40052, quantity: 16, retry: 500, tries: 1, extra: { unitId: 1 } }, (err, res) => {
+                            if (err) {
+                                myResolve({
+                                    "success": false,
+                                    "data": {
+                                        "device_ip": ipDevice,
+                                        "serial_number": "",
+                                        "err_type": "cannot read regs"
+                                    },
+                                    "error": err
+                                });
+                            }
+                            else {
+                                dataArr = res.response.data
+                                serialNumber = ""
+                                dataArr.map((e) => {
+                                    if (e[0] != 0 && e[1] != 0) {
+                                        serialNumber += e.toString()
+                                    }
+                                    else if (e[0] != 0 && e[1] == 0) {
+                                        serialNumber += String.fromCharCode(e[0])
+                                    }
+                                })
+                                console.log(serialNumber);
+                                myResolve({
+                                    "success": true,
+                                    "data": {
+                                        "device_ip": ipDevice,
+                                        "serial_number": serialNumber,
+                                        "err_type": "success read regs, no error"
+                                    },
+                                    "error": err
+                                });
+                            }
+                            connection?.close();
+                        })
+                        break;
+                    case "SMA-100":
+                        console.log("case sma 100")
+                        //Close connection
+                        connection.readHoldingRegisters({ address: 40052, quantity: 16, retry: 500, tries: 1, extra: { unitId: 126 } }, (err, res) => {
+                            if (err) {
+                                myResolve({
+                                    "success": false,
+                                    "data": {
+                                        "device_ip": ipDevice,
+                                        "serial_number": "",
+                                        "err_type": "cannot read regs"
+                                    },
+                                    "error": err
+                                });
+                            }
+                            else {
+                                dataArr = res.response.data
+                                serialNumber = ""
+                                dataArr.map((e) => {
+                                    if (e[0] != 0 && e[1] != 0) {
+                                        serialNumber += e.toString()
+                                    }
+                                    else if (e[0] != 0 && e[1] == 0) {
+                                        serialNumber += String.fromCharCode(e[0])
+                                    }
+                                })
+                                console.log(serialNumber);
+                                myResolve({
+                                    "success": true,
+                                    "data": {
+                                        "device_ip": ipDevice,
+                                        "serial_number": serialNumber,
+                                        "err_type": "success read regs, no error"
+                                    },
+                                    "error": err
+                                });
+                            }
+                            connection?.close();
+                        })
+                        break;
+                }
             }
         });
     });
@@ -91,7 +154,7 @@ module.exports = function (RED) {
         var node = this;
         node.on('input', async function (msg) {
             try {
-                const { numberIPPerChunk = 100 } = config;
+                const { numberIPPerChunk = 100, model } = config;
 
                 this.status({ fill: "blue", shape: "ring", text: "scanning" });
                 const listIp = getListIpV4Local();
@@ -111,19 +174,23 @@ module.exports = function (RED) {
                         let nestedArr = [];
                         for (let k = 0; k < numberIPPerChunk; k++) {
                             if (j + k < 255) {
-                                let reqIp = baseIp + "." + (i + j);
+                                tail = parseInt(k) + parseInt(j)
+                                let reqIp = baseIp + "." + tail;
+                                console.log("reqIp:" + reqIp + ", model: " + model)
                                 // requestArr.push(scanInv(reqIp));
-                                nestedArr.push(scanInv(reqIp));
+                                nestedArr.push(scanInv(reqIp, model));
                             }
                         };
-                        j = j + numberIPPerChunk;
+                        j = parseInt(j) + parseInt(numberIPPerChunk);
+                        console.log('j: ', j)
                         const result = await Promise.all(nestedArr);
                         result.map((res) => {
+                            // console.log(res)
                             resultInNetWork.push(res);
                             if (res.success) {
                                 resultSuccessInNetWork.push({
                                     "device_ip": res?.data?.device_ip,
-                                    "serial_number": res?.data?.device_ip,
+                                    "serial_number": res?.data?.serial_number,
                                 });
                             }
                         });
@@ -134,9 +201,10 @@ module.exports = function (RED) {
                     });
                     resultArrRaw.push({
                         "localIp": IPv4,
-                        "result": resultInNetWork
+                        "result": resultSuccessInNetWork
                     });
                 }
+
                 msg.raw = resultArrRaw;
                 msg.payload = resultArr;
                 node.send(msg);
