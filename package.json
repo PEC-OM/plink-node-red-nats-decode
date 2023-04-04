@@ -13,7 +13,8 @@
   "node-red": {
     "nodes": {
       "plink-nats-decode": "plink-nats-decode.js",
-      "plink-scan-inverter": "plink-scan-inverter.js"
+      "plink-scan-inverter": "plink-scan-inverter.js",
+      "plink-nats-encode": "plink-nats-encode.js"
     }
   },
   "keywords": [],

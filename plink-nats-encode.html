@@ -1,5 +1,5 @@
 <script type="text/javascript">
-    RED.nodes.registerType('Plink Nats Decode', {
+    RED.nodes.registerType('Plink Nats Encode', {
         category: 'function',
         color: '#80bfff',
         defaults: {
@@ -9,18 +9,18 @@
         outputs: 1,
         icon: "bridge.svg",
         label: function () {
-            return this.name || "Plink nats decode";
+            return this.name || "Plink nats encode";
         }
     });
 </script>
 
-<script type="text/html" data-template-name="Plink Nats Decode">
+<script type="text/html" data-template-name="Plink Nats Encode">
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
 </script>
 
-<script type="text/html" data-help-name="Plink Nats Decode">
+<script type="text/html" data-help-name="Plink Nats Encode">
     <p>A simple node that converts the message payloads from nats server plink</p>
 </script>

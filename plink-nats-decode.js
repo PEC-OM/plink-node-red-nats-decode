@@ -86,7 +86,7 @@ const getListIpV4Local = () => {
 }
 
 module.exports = function (RED) {
-    function LowerCaseNode(config) {
+    function PlinkNatsDecodeNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
         node.on('input', function (msg) {
@@ -114,5 +114,5 @@ module.exports = function (RED) {
             });
         });
     }
-    RED.nodes.registerType("Plink Nats Decode", LowerCaseNode);
+    RED.nodes.registerType("Plink Nats Decode", PlinkNatsDecodeNode);
 }
